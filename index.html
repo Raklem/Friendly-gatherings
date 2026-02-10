@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Планы на вечер ✨</title>
+    <style>
+        :root {
+            --pink-light: #fff0f3;
+            --pink-medium: #ffccd5;
+            --pink-dark: #ff4d6d;
+            --text-main: #594145;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--pink-medium) 100%);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 85%;
+        }
+
+        h1 { color: var(--pink-dark); font-size: 1.5rem; margin-bottom: 0.5rem; }
+        p { font-size: 0.9rem; margin-bottom: 2rem; opacity: 0.8; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .menu-card {
+            background: white;
+            border: 2px solid var(--pink-light);
+            padding: 20px 10px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        .menu-card:hover {
+            border-color: var(--pink-dark);
+            transform: translateY(-5px);
+            background: var(--pink-light);
+        }
+
+        .icon { font-size: 2rem; }
+
+        .footer-photo {
+            margin-top: 30px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Куда отправимся? 🗺️</h1>
+    <p>Выбери категорию, а дальше решим!</p>
+
+    <div class="menu-grid">
+        <a href="restaurant.html" class="menu-card">
+            <span class="icon">🍽️</span>
+            <span>Рестораны</span>
+        </a>
+        <a href="movie.html" class="menu-card">
+            <span class="icon">🍿</span>
+            <span>Кино</span>
+        </a>
+        <a href="museum.html" class="menu-card">
+            <span class="icon">🖼️</span>
+            <span>Музеи</span>
+        </a>
+        <a href="concert.html" class="menu-card">
+            <span class="icon">🎸</span>
+            <span>Концерты</span>
+        </a>
+    </div>
+
+    <img src="me.jpg" alt="Me" class="footer-photo">
+</div>
+
+</body>
+</html>
