@@ -139,6 +139,7 @@
     <div id="step-cuisine" class="step active">
         <h1>Какую кухню выберем? 🍽️</h1>
         <div class="btn-group">
+            <button onclick="showPlaces('interesting')" style="background: #ff4d6d;">Интересное 🌟</button>
             <button onclick="showPlaces('american')">Американская 🍔</button>
             <button onclick="showPlaces('chinese')">Китайская 🥡</button>
             <button onclick="showPlaces('korean')">Корейская 🥢</button>
@@ -152,7 +153,7 @@
     <div id="step-places" class="step">
         <h1 id="cuisine-name">Рестораны</h1>
         <div id="places-list" class="btn-group"></div>
-        <button class="back-btn" onclick="goToStep('step-cuisine')">← К кухням</button>
+        <button class="back-btn" onclick="goToStep('step-cuisine')">← К категориям</button>
     </div>
 
     <div id="step-time" class="step">
@@ -173,6 +174,12 @@
 
 <script>
     const restaurants = {
+        interesting: [
+            { name: "Cotton Cat Cafe 🐈", map: "https://maps.app.goo.gl/fifq4gEBei7gm5ro6" },
+            { name: "B caffe bar (Рисование) 🎨", map: "https://maps.app.goo.gl/ezYVwtqwf1fvkwoQA" },
+            { name: "Littleheaven in UB (Уют) ☕", map: "https://maps.app.goo.gl/ibVD9pFtJ4iL7VPY6" },
+            { name: "Toilet Cafe Mongolia 🚽", map: "https://maps.app.goo.gl/dwUKcRVaJ4qo8i9C7" }
+        ],
         american: [
             { name: "Fromagerie MACU", map: "https://maps.app.goo.gl/7YoQ4cLFPTS91Qyc7?g_st=ic" },
             { name: "Cafe Papa", map: "https://maps.app.goo.gl/LXy6jNA3TuU52CSA7" }
@@ -210,7 +217,18 @@
     function showPlaces(cuisine) {
         const list = document.getElementById('places-list');
         list.innerHTML = '';
-        document.getElementById('cuisine-name').innerText = cuisine.toUpperCase();
+        
+        const names = {
+            interesting: "ИНТЕРЕСНЫЕ МЕСТА",
+            american: "АМЕРИКАНСКАЯ",
+            chinese: "КИТАЙСКАЯ",
+            korean: "КОРЕЙСКАЯ",
+            mongolian: "МОНГОЛЬСКАЯ",
+            japan: "ЯПОНСКАЯ",
+            indian: "ИНДИЙСКАЯ"
+        };
+        
+        document.getElementById('cuisine-name').innerText = names[cuisine];
         
         restaurants[cuisine].forEach(res => {
             const item = document.createElement('div');
@@ -263,7 +281,7 @@
         finalChoice.date = document.getElementById('date-picker').value;
         finalChoice.time = `${h}:${m}`;
         
-        const text = `Привет! Идем в ресторан: ${finalChoice.place}\n📅 Дата: ${finalChoice.date}\n⏰ Время: ${finalChoice.time}`;
+        const text = `Привет! Идем в интересное место: ${finalChoice.place}\n📅 Дата: ${finalChoice.date}\n⏰ Время: ${finalChoice.time}`;
         window.open(`https://t.me/Raklem?text=${encodeURIComponent(text)}`, '_blank');
     }
 </script>

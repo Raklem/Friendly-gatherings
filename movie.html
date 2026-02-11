@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Выбор кинотеатра 🍿</title>
+    <style>
+        :root {
+            --pink-light: #fff0f3;
+            --pink-medium: #ffccd5;
+            --pink-dark: #ff4d6d;
+            --text-main: #594145;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--pink-light) 0%, var(--pink-medium) 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 85%;
+            margin: 20px;
+        }
+
+        .step { display: none; animation: slideUp 0.4s ease-out; }
+        .active { display: block; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { color: var(--pink-dark); font-size: 1.4rem; margin-bottom: 1.5rem; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 15px; }
+
+        .movie-card {
+            background: #fffafa;
+            border: 2px solid var(--pink-light);
+            border-radius: 20px;
+            padding: 15px;
+            transition: 0.3s;
+        }
+
+        .movie-card:hover { border-color: var(--pink-dark); }
+
+        .movie-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; display: block; }
+
+        .link-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 10px; }
+
+        .small-link {
+            font-size: 0.75rem;
+            color: #ff4d6d;
+            text-decoration: none;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--pink-medium);
+        }
+
+        button {
+            background: #ff8fa3;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.95rem;
+        }
+
+        button:hover { background: var(--pink-dark); }
+
+        .back-btn { background: #e9ecef; color: #6c757d; margin-top: 15px; width: 100%; }
+
+        /* iOS Picker */
+        .picker-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 160px; background: #f8f9fa; border-radius: 20px;
+            position: relative; margin: 20px 0; overflow: hidden;
+        }
+        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column::-webkit-scrollbar { display: none; }
+        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 1.2rem; color: #adb5bd; }
+        .picker-item.selected { color: var(--pink-dark); font-weight: bold; font-size: 1.6rem; }
+        .picker-highlight { position: absolute; top: 55px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #dee2e6; border-bottom: 1px solid #dee2e6; pointer-events: none; background: rgba(255, 77, 109, 0.05); }
+
+        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; font-size: 1rem; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-movies" class="step active">
+        <h1>Куда в кино? 🍿</h1>
+        <div class="btn-group">
+            <div class="movie-card">
+                <span class="movie-name">Urgoo 3 IMAX</span>
+                <div class="link-row">
+                    <a href="https://maps.app.goo.gl/TYa5yD6Ak5mz3X1K8" target="_blank" class="small-link">Карта 📍</a>
+                    <a href="http://www.urgoo.mn/" target="_blank" class="small-link">Сеансы 🎬</a>
+                </div>
+                <button onclick="selectMovie('Urgoo 3 IMAX')">Выбрать это место</button>
+            </div>
+
+            <div class="movie-card">
+                <span class="movie-name">Tengis Movie Theater</span>
+                <div class="link-row">
+                    <a href="https://maps.app.goo.gl/s4bwvZ5f7KzNiPir7" target="_blank" class="small-link">Карта 📍</a>
+                    <a href="http://tengis.mn/" target="_blank" class="small-link">Сеансы 🎬</a>
+                </div>
+                <button onclick="selectMovie('Tengis Movie Theater')">Выбрать это место</button>
+            </div>
+
+            <button class="back-btn" onclick="location.href='index.html'">← На главную</button>
+        </div>
+    </div>
+
+    <div id="step-time" class="step">
+        <h1 id="selected-movie-title"></h1>
+        <p style="font-size: 0.8rem; margin-bottom: 10px;">Когда начнем просмотр?</p>
+        <input type="date" id="date-picker" value="2026-02-14">
+        
+        <div class="picker-container">
+            <div class="picker-highlight"></div>
+            <div class="picker-column" id="hours-col" onscroll="updateSelected('hours')"></div>
+            <div style="font-weight: bold; font-size: 1.5rem;">:</div>
+            <div class="picker-column" id="minutes-col" onscroll="updateSelected('minutes')"></div>
+        </div>
+
+        <button onclick="finish()" style="width: 100%;">Готово! ✌️</button>
+        <button class="back-btn" onclick="goToStep('step-movies')">← Назад к списку</button>
+    </div>
+</div>
+
+<script>
+    let finalChoice = { place: '', date: '', time: '' };
+
+    function goToStep(id) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function selectMovie(name) {
+        finalChoice.place = name;
+        document.getElementById('selected-movie-title').innerText = name;
+        initPickers();
+        goToStep('step-time');
+    }
+
+    function initPickers() {
+        const hCol = document.getElementById('hours-col');
+        const mCol = document.getElementById('minutes-col');
+        if (hCol.innerHTML !== "") return;
+
+        let hHTML = '<div class="picker-item"></div>';
+        for(let i=0; i<24; i++) hHTML += `<div class="picker-item">${String(i).padStart(2, '0')}</div>`;
+        hCol.innerHTML = hHTML + '<div class="picker-item"></div>';
+
+        let mHTML = '<div class="picker-item"></div>';
+        for(let i=0; i<60; i+=5) mHTML += `<div class="picker-item">${String(i).padStart(2, '0')}</div>`;
+        mCol.innerHTML = mHTML + '<div class="picker-item"></div>';
+
+        setTimeout(() => { updateSelected('hours'); updateSelected('minutes'); }, 100);
+    }
+
+    function updateSelected(type) {
+        const col = document.getElementById(type + '-col');
+        const items = col.querySelectorAll('.picker-item');
+        const index = Math.round(col.scrollTop / 50) + 1;
+        items.forEach(i => i.classList.remove('selected'));
+        if(items[index]) items[index].classList.add('selected');
+    }
+
+    function finish() {
+        const h = document.getElementById('hours-col').querySelector('.selected').innerText;
+        const m = document.getElementById('minutes-col').querySelector('.selected').innerText;
+        finalChoice.date = document.getElementById('date-picker').value;
+        finalChoice.time = `${h}:${m}`;
+        
+        const text = `Привет! Выбираю кинотеатр: ${finalChoice.place}\n📅 Дата: ${finalChoice.date}\n⏰ Время: ${finalChoice.time}\nДавай выберем фильм? 👀`;
+        window.open(`https://t.me/Raklem?text=${encodeURIComponent(text)}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
