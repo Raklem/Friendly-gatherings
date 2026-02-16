@@ -101,17 +101,29 @@
         <button id="dynamic-back" class="back-btn">← Назад</button>
     </div>
 
-    <div id="step-final" class="step">
-        <h1 id="selected-place">Когда?</h1>
-        <input type="date" id="date-picker" value="2026-01-01">
+<div id="step-final" class="step">
+        <h1 id="selected-place" style="margin-bottom: 5px;">Название места</h1>
+        <p style="font-size: 0.9rem; color: #888; margin-top: 0;">Когда и с кем?</p>
+        
+        <input type="date" id="date-picker" value="2026-02-16">
+        
         <div class="picker-container">
             <div class="highlight"></div>
             <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
-            <div style="font-weight: bold;">:</div>
+            <div style="font-weight: bold; line-height: 50px;">:</div>
             <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
         </div>
-        <button class="btn-main" onclick="sendToTG()">Запланировать ✨</button>
-        <button class="back-btn" onclick="goToStep('step-places')">← Сменить место</button>
+
+        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Выбери куда отправить инвайт:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <button class="btn-main" style="background: #0088cc; padding: 12px 5px;" onclick="share('tg')">Telegram</button>
+            <button class="btn-main" style="background: #25D366; padding: 12px 5px;" onclick="share('wa')">WhatsApp</button>
+            <button class="btn-main" style="background: #e1306c; padding: 12px 5px;" onclick="share('inst')">Instagram</button>
+            <button class="btn-main" style="background: #0084ff; padding: 12px 5px;" onclick="share('msgr')">Messenger</button>
+        </div>
+        
+        <button class="back-btn" onclick="goToStep('step-places')">← Изменить место</button>
     </div>
 </div>
 
@@ -223,13 +235,51 @@
         if(items[idx]) items[idx].classList.add('selected');
     }
 
-    function sendToTG() {
+function share(platform) {
         const name = document.getElementById('selected-place').innerText;
         const d = document.getElementById('date-picker').value;
         const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
         const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
-        const msg = `Гастро-план! 🍽️\nЛокация: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}`;
-        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+        
+        const text = `План найден! 🥂\n\n📍 Место: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\n\nПойдём? ✨`;
+        const encodedText = encodeURIComponent(text);
+
+        let url = '';
+
+        switch(platform) {
+            case 'tg':
+                // Чистая ссылка для репоста (откроет список контактов)
+                url = `https://t.me/share/url?url=&text=${encodedText}`;
+                break;
+            case 'wa':
+                // Чистая ссылка без номера телефона (спросит кому отправить)
+                url = `https://api.whatsapp.com/send?text=${encodedText}`;
+                break;
+            case 'inst':
+                copyToClipboard(text);
+                alert("Текст скопирован! Выбери нужный чат в Instagram и вставь сообщение.");
+                url = "instagram://sharesheet"; 
+                // Если не сработает редирект, просто открываем инбокс
+                setTimeout(() => { window.location.href = "https://www.instagram.com/direct/inbox/"; }, 500);
+                break;
+            case 'msgr':
+                // Универсальная ссылка для Messenger
+                url = `fb-messenger://share?link=${encodeURIComponent(window.location.href)}&app_id=12345&text=${encodedText}`;
+                // Для десктопа/браузера
+                setTimeout(() => { window.location.href = "https://www.facebook.com/messages/"; }, 500);
+                break;
+        }
+
+        if(url) window.open(url, '_blank');
+    }
+
+    function copyToClipboard(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
     }
 </script>
 </body>
