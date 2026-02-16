@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Active Life 🧗</title>
+    <style>
+        :root {
+            --act-bg: #f1f8e9;
+            --act-accent: #689f38; /* Зеленый лес */
+            --act-blue: #0288d1; /* Горное небо */
+            --text: #1b5e20;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; color: var(--text);
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 35px;
+            box-shadow: 0 15px 35px rgba(104, 159, 56, 0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 88%;
+            margin: 20px;
+        }
+
+        .step { display: none; animation: slideUp 0.4s ease-out; }
+        .active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--act-accent); font-size: 1.4rem; margin-bottom: 1.2rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .cat-card {
+            background: #fff; border: 2px solid #f1f8e9;
+            padding: 20px 5px; border-radius: 22px; cursor: pointer; transition: 0.2s;
+        }
+        .cat-card:hover { border-color: var(--act-accent); background: #f9fbe7; }
+        .cat-card span { display: block; margin-top: 8px; font-weight: bold; font-size: 0.85rem; }
+
+        .scroll-list { max-height: 45vh; overflow-y: auto; padding-right: 5px; margin: 15px 0; }
+        .place-item {
+            background: #fafdfa; border: 1px solid #e8f5e9;
+            border-radius: 18px; padding: 12px; margin-bottom: 10px; text-align: left;
+        }
+        .place-name { font-weight: bold; font-size: 0.9rem; display: block; color: #2e7d32; }
+        .map-link { color: var(--act-blue); font-size: 0.75rem; text-decoration: none; border-bottom: 1px dashed; }
+
+        .btn-main {
+            background: var(--act-accent); color: white; border: none;
+            padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(104, 159, 56, 0.2);
+        }
+        
+        .back-btn { background: none; border: none; color: #9e9e9e; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem; }
+
+        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; font-family: inherit; }
+        .picker-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 140px; background: #fafafa; border-radius: 20px;
+            position: relative; margin-bottom: 15px; overflow: hidden;
+        }
+        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column::-webkit-scrollbar { display: none; }
+        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ddd; }
+        .picker-item.selected { color: var(--act-accent); font-weight: bold; font-size: 1.4rem; }
+        .highlight { position: absolute; top: 45px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-cats" class="step active">
+        <h1>Active Life 🧗</h1>
+        <div class="grid">
+            <div class="cat-card" onclick="openCat('hiking')">🥾<span>Hiking</span></div>
+            <div class="cat-card" onclick="openCat('horse')">🐎<span>Horse</span></div>
+            <div class="cat-card" onclick="openCat('camel')">🐫<span>Camel</span></div>
+            <div class="cat-card" onclick="openCat('ski')">⛷️<span>Ski</span></div>
+            <div class="cat-card" onclick="openCat('trip')">🚐<span>Trip</span></div>
+            <div class="cat-card" onclick="openCat('parks')">🌲<span>Parks</span></div>
+        </div>
+        <button class="back-btn" onclick="location.href='outdoor_menu.html'">← Назад</button>
+    </div>
+
+    <div id="step-places" class="step">
+        <h1 id="cat-title">Выбери маршрут</h1>
+        <div id="places-list" class="scroll-list"></div>
+        <button class="back-btn" onclick="goToStep('step-cats')">← Назад</button>
+    </div>
+
+    <div id="step-final" class="step">
+        <h1 id="selected-place">Когда?</h1>
+        <input type="date" id="date-picker" value="2026-01-01">
+        <div class="picker-container">
+            <div class="highlight"></div>
+            <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
+            <div style="font-weight: bold;">:</div>
+            <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
+        </div>
+        <button class="btn-main" onclick="sendToTG()">Запланировать приключение 🏕️</button>
+        <button class="back-btn" onclick="goToStep('step-places')">← Назад</button>
+    </div>
+</div>
+
+<script>
+    const activeData = {
+        hiking: [
+            { name: "Bogd Khan Uul (Zaisan Hill)", map: "https://www.google.com/search?q=https://www.google.com/maps/search/%3Fapi%3D1%26query%3DBird%2BJazz%2BCafe%2B%2526%2BBar%26query_place_id%3DChIJtxLpr8STll0RiD1U6EwBzX8" },
+            { name: "Tsetsee Gun Hike", map: "https://www.google.com/search?q=https://www.google.com/maps/search/%3Fapi%3D1%26query%3DFat%2BCat%2BJazz%2BClub%2BUlaanbaatar%26query_place_id%3DChIJDyKCwc6Tll0RHvjj3dN5-qs" }
+        ],
+        horse: [
+            { name: "Terelj National Park Ride", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ175" },
+            { name: "Khui Doloon Khudag", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ176" }
+        ],
+        camel: [
+            { name: "Mini-Gobi (Elsen Tasarkhai)", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ177" },
+            { name: "Terelj Camel Ride", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ178" }
+        ],
+        ski: [
+            { name: "Sky Resort", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ179" }
+        ],
+        trip: [
+            { name: "Genghis Khan Statue Complex", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr50" },
+            { name: "Manzushir Monastery", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr51" }
+        ],
+        parks: [
+            { name: "National Park (Үндэсний цэцэрлэгт хүрээлэн)", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr52" },
+            { name: "Buddha Park", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr53" }
+        ]
+    };
+
+    let choice = { place: '' };
+
+    function goToStep(id) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openCat(key) {
+        document.getElementById('cat-title').innerText = key.toUpperCase();
+        const list = document.getElementById('places-list');
+        list.innerHTML = '';
+        activeData[key].forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'place-item';
+            div.innerHTML = `
+                <span class="place-name">${p.name}</span>
+                <a href="${p.map}" target="_blank" class="map-link">На карте 📍</a>
+                <button class="btn-main" style="margin-top:8px; padding:6px; font-size:0.8rem;" onclick="confirm('${p.name}')">Выбрать</button>
+            `;
+            list.appendChild(div);
+        });
+        goToStep('step-places');
+    }
+
+    function confirm(name) {
+        choice.place = name;
+        document.getElementById('selected-place').innerText = name;
+        initPickers();
+        goToStep('step-final');
+    }
+
+    function initPickers() {
+        const h = document.getElementById('hours-col');
+        const m = document.getElementById('minutes-col');
+        if(h.innerHTML) return;
+        let hC = '<div class="picker-item"></div>';
+        for(let i=0; i<24; i++) hC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        h.innerHTML = hC + '<div class="picker-item"></div>';
+        let mC = '<div class="picker-item"></div>';
+        for(let i=0; i<60; i+=5) mC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        m.innerHTML = mC + '<div class="picker-item"></div>';
+        setTimeout(() => { updatePick('hours'); updatePick('minutes'); }, 50);
+    }
+
+    function updatePick(type) {
+        const col = document.getElementById(type + '-col');
+        const items = col.querySelectorAll('.picker-item');
+        const idx = Math.round(col.scrollTop / 45) + 1;
+        items.forEach(i => i.classList.remove('selected'));
+        if(items[idx]) items[idx].classList.add('selected');
+    }
+
+    function sendToTG() {
+        const d = document.getElementById('date-picker').value;
+        const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
+        const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
+        const msg = `Активный отдых! 🧗\nМесто: ${choice.place}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\nБерем удобную обувь! 👟`;
+        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Culture 🏛️</title>
+    <style>
+        :root {
+            --cult-bg: #fdfaf3;
+            --accent: #d4a373;
+            --text: #4a4a4a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fefae0 0%, #faedcd 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; color: var(--text);
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 88%;
+            margin: 20px;
+        }
+
+        .step { display: none; animation: fadeIn 0.4s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--accent); font-size: 1.4rem; margin-bottom: 1.5rem; }
+
+        /* Сетка категорий */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cat-card {
+            background: #fff; border: 2px solid #faedcd;
+            padding: 20px 10px; border-radius: 22px; cursor: pointer; transition: 0.2s;
+        }
+        .cat-card:hover { border-color: var(--accent); background: #fefae0; }
+        .cat-card span { display: block; margin-top: 8px; font-weight: bold; font-size: 0.85rem; }
+
+        /* Список мест */
+        .scroll-list { max-height: 50vh; overflow-y: auto; padding-right: 5px; margin: 15px 0; }
+        .place-item {
+            background: #fdfcfb; border: 1px solid #eee;
+            border-radius: 18px; padding: 15px; margin-bottom: 12px; text-align: left;
+        }
+        .place-name { font-weight: bold; display: block; margin-bottom: 5px; }
+        .map-link { color: var(--accent); font-size: 0.8rem; text-decoration: none; border-bottom: 1px dashed; }
+
+        /* Таймпикер и Дата */
+        input[type="date"] {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee;
+            font-family: inherit; margin-bottom: 15px;
+        }
+        .picker-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 150px; background: #fafafa; border-radius: 20px;
+            position: relative; margin-bottom: 20px; overflow: hidden;
+        }
+        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column::-webkit-scrollbar { display: none; }
+        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ccc; }
+        .picker-item.selected { color: var(--accent); font-weight: bold; font-size: 1.4rem; }
+        .highlight { position: absolute; top: 50px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+
+        .btn-main {
+            background: var(--accent); color: white; border: none;
+            padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer;
+        }
+        .back-btn { background: none; border: none; color: #aaa; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-cats" class="step active">
+        <h1>Culture 🏛️</h1>
+        <div class="grid">
+            <div class="cat-card" onclick="openCat('museums')">🖼️<span>Museums</span></div>
+            <div class="cat-card" onclick="openCat('theatre')">🎭<span>Theatre</span></div>
+            <div class="cat-card" onclick="openCat('cinema')">🍿<span>Cinema</span></div>
+            <div class="cat-card" onclick="openCat('concerts')">🎷<span>Concerts</span></div>
+            <div class="cat-card" onclick="openCat('art')">🎨<span>Art</span></div>
+        </div>
+        <button class="back-btn" onclick="location.href='outdoor_menu.html'">← Назад к Outdoor</button>
+    </div>
+
+    <div id="step-places" class="step">
+        <h1 id="cat-title">Выбери место</h1>
+        <div id="places-list" class="scroll-list"></div>
+        <button class="back-btn" onclick="goToStep('step-cats')">← К категориям</button>
+    </div>
+
+    <div id="step-time" class="step">
+        <h1 id="selected-place">Когда?</h1>
+        <input type="date" id="date-picker" value="2026-01-01">
+        <div class="picker-container">
+            <div class="highlight"></div>
+            <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
+            <div style="font-weight: bold;">:</div>
+            <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
+        </div>
+        <button class="btn-main" onclick="sendToTG()">Запланировать ✉️</button>
+        <button class="back-btn" onclick="goToStep('step-places')">← Сменить место</button>
+    </div>
+</div>
+
+<script>
+    const data = {
+        museums: [
+            { name: "Музей Чингисхана", map: "https://maps.app.goo.gl/fJQ6Ber27KjHCKULA" },
+            { name: "Музей изобразительного искусства", map: "https://maps.app.goo.gl/vhAbUNnW2w9WKqKi9" },
+            { name: "Национальный исторический музей", map: "https://maps.app.goo.gl/KhkKxkaBXCSKxBnT6" }
+        ],
+        theatre: [
+            { name: "Театр Оперы и Балета", map: "https://maps.google.com/?q=State+Opera+and+Ballet+Academic+Theatre" },
+            { name: "Драматический театр", map: "https://maps.google.com/?q=National+Academic+Drama+Theatre" }
+        ],
+        cinema: [
+            { name: "Urgoo Cinema", map: "https://maps.google.com/?q=Urgoo+Cinema" },
+            { name: "Gegeenten Cinema", map: "https://maps.google.com/?q=Gegeenten" }
+        ],
+        concerts: [
+            { name: "Bird Jazz Cafe & Bar", map: "https://maps.app.goo.gl/Z3rQkvMXQhBkLQXe6" },
+            { name: "Fat Cat Jazz Club", map: "https://maps.app.goo.gl/hyFjgsUZrQoBWV9Y9" }
+        ],
+        art: [
+            { name: "Union of Mongolian Artists", map: "https://maps.app.goo.gl/o3JmGeQx6gFkkgjm7" },
+            { name: "Art Space 976", map: "https://maps.google.com/?q=976+Art+Gallery" }
+        ]
+    };
+
+    let selection = { act: '' };
+
+    function goToStep(id) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openCat(key) {
+        document.getElementById('cat-title').innerText = key.toUpperCase();
+        const list = document.getElementById('places-list');
+        list.innerHTML = '';
+        data[key].forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'place-item';
+            div.innerHTML = `
+                <span class="place-name">${p.name}</span>
+                <a href="${p.map}" target="_blank" class="map-link">На карте 📍</a>
+                <button class="btn-main" style="margin-top:10px; padding:8px;" onclick="confirmPlace('${p.name}')">Выбрать</button>
+            `;
+            list.appendChild(div);
+        });
+        goToStep('step-places');
+    }
+
+    function confirmPlace(name) {
+        selection.act = name;
+        document.getElementById('selected-place').innerText = name;
+        initPickers();
+        goToStep('step-time');
+    }
+
+    function initPickers() {
+        const h = document.getElementById('hours-col');
+        const m = document.getElementById('minutes-col');
+        if(h.innerHTML) return;
+        let hC = '<div class="picker-item"></div>';
+        for(let i=0; i<24; i++) hC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        h.innerHTML = hC + '<div class="picker-item"></div>';
+        let mC = '<div class="picker-item"></div>';
+        for(let i=0; i<60; i+=5) mC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        m.innerHTML = mC + '<div class="picker-item"></div>';
+        setTimeout(() => { updatePick('hours'); updatePick('minutes'); }, 50);
+    }
+
+    function updatePick(type) {
+        const col = document.getElementById(type + '-col');
+        const items = col.querySelectorAll('.picker-item');
+        const idx = Math.round(col.scrollTop / 50) + 1;
+        items.forEach(i => i.classList.remove('selected'));
+        if(items[idx]) items[idx].classList.add('selected');
+    }
+
+    function sendToTG() {
+        const d = document.getElementById('date-picker').value;
+        const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
+        const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
+        const msg = `Культурный план! 🏛️\nМесто: ${selection.act}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}`;
+        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+
+</body>
+</html>

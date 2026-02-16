@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Домашние планы 🏠</title>
+    <style>
+        :root {
+            --home-bg: #fdfcfb;
+            --blue-soft: #a2d2ff;
+            --pink-soft: #ffafcc;
+            --text: #5d5d5d;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fdfcfb 0%, #e2ebf0 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 380px;
+            width: 88%;
+        }
+
+        .step { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h1 { font-size: 1.3rem; margin-bottom: 1.5rem; color: #4a4a4a; }
+        
+        /* Стили кнопок категорий */
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-card {
+            background: #fff;
+            border: 2px solid #f0f0f0;
+            padding: 20px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-card:hover { border-color: var(--blue-soft); transform: scale(1.02); }
+        .menu-card span { display: block; margin-top: 8px; font-weight: 600; font-size: 0.9rem; }
+
+        /* Стили кнопок активностей */
+        .list-group { display: flex; flex-direction: column; gap: 10px; }
+        .activity-btn {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .activity-btn:hover { background: var(--blue-soft); color: white; border-color: var(--blue-soft); }
+
+        /* Таймпикер */
+        .picker-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 150px; background: #fafafa; border-radius: 20px;
+            position: relative; margin: 20px 0; overflow: hidden;
+        }
+        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column::-webkit-scrollbar { display: none; }
+        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ccc; }
+        .picker-item.selected { color: var(--blue-soft); font-weight: bold; font-size: 1.4rem; }
+        .highlight { position: absolute; top: 50px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+
+        .nav-btn { background: none; border: none; color: #aaa; margin-top: 20px; cursor: pointer; text-decoration: underline; font-size: 0.8rem; }
+        .confirm-btn { background: var(--blue-soft); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-home-main" class="step active">
+        <h1>Твой домашний вайб ✨</h1>
+        <div class="grid-menu">
+            <div class="menu-card" onclick="openCat('cozy')">🎬<span>Cozy</span></div>
+            <div class="menu-card" onclick="openCat('creative')">🎨<span>Creative</span></div>
+            <div class="menu-card" onclick="openCat('productive')">📚<span>Productive</span></div>
+            <div class="menu-card" onclick="openCat('emotional')">❤️<span>Emotional</span></div>
+        </div>
+        <button class="nav-btn" onclick="location.href='index.html'">На главную</button>
+    </div>
+
+    <div id="step-activities" class="step">
+        <h1 id="cat-title">Чем займемся?</h1>
+        <div id="activities-list" class="list-group"></div>
+        <button class="nav-btn" onclick="goToStep('step-home-main')">← Назад к выбору</button>
+    </div>
+
+    <div id="step-time" class="step">
+        <h1 id="selected-activity">Время</h1>
+        
+        <input type="date" id="date-picker" value="2026-01-01" 
+               style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; 
+                      font-size: 1rem; margin-bottom: 10px; font-family: inherit; color: var(--text);">
+        
+        <div class="picker-container">
+            <div class="highlight"></div>
+            <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
+            <div style="font-weight: bold;">:</div>
+            <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
+        </div>
+        
+        <button class="confirm-btn" onclick="sendToTG()">Подтвердить ✉️</button>
+        <button class="nav-btn" onclick="goToStep('step-activities')">← К списку дел</button>
+    </div>
+</div>
+
+<script>
+    const content = {
+        cozy: { title: "Спокойно и уютно ☁️", items: ["Посмотреть фильм на ноуте", "Молчать", "Почитать вместе", "Смотреть друг на друга", "Заказать еду в дорм"] },
+        creative: { title: "Творческий вечер 🎨", items: ["Порисовать", "Раскрасить раскраски", "Полепить из пластилина", "Собрать алмазную мозаику", "Собирать пазл"] },
+        productive: { title: "С пользой 📚", items: ["Сделать домашку", "Bible study", "Приготовить что-то"] },
+        emotional: { title: "Для души ❤️", items: ["Вечер воспоминаний", "Ночь глубоких разговоров", "Мини-спа", "Вопрос-ответ"] }
+    };
+
+    let choice = { cat: '', act: '' };
+
+    function goToStep(id) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openCat(catKey) {
+        choice.cat = catKey;
+        const data = content[catKey];
+        document.getElementById('cat-title').innerText = data.title;
+        const list = document.getElementById('activities-list');
+        list.innerHTML = '';
+        data.items.forEach(item => {
+            const b = document.createElement('button');
+            b.className = 'activity-btn';
+            b.innerText = item;
+            b.onclick = () => {
+                choice.act = item;
+                document.getElementById('selected-activity').innerText = item;
+                initPickers();
+                goToStep('step-time');
+            };
+            list.appendChild(b);
+        });
+        goToStep('step-activities');
+    }
+
+    function initPickers() {
+        const h = document.getElementById('hours-col');
+        const m = document.getElementById('minutes-col');
+        if(h.innerHTML) return;
+        
+        let hContent = '<div class="picker-item"></div>';
+        for(let i=0; i<24; i++) hContent += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        h.innerHTML = hContent + '<div class="picker-item"></div>';
+
+        let mContent = '<div class="picker-item"></div>';
+        for(let i=0; i<60; i+=5) mContent += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        m.innerHTML = mContent + '<div class="picker-item"></div>';
+        
+        setTimeout(() => { updatePick('hours'); updatePick('minutes'); }, 50);
+    }
+
+    function updatePick(type) {
+        const col = document.getElementById(type + '-col');
+        const items = col.querySelectorAll('.picker-item');
+        const idx = Math.round(col.scrollTop / 50) + 1;
+        items.forEach(i => i.classList.remove('selected'));
+        if(items[idx]) items[idx].classList.add('selected');
+    }
+
+    function sendToTG() {
+        const date = document.getElementById('date-picker').value;
+        const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
+        const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
+        
+        const msg = `Домашние планы! 🏠\n` +
+                    `Занятие: ${choice.act}\n` +
+                    `📅 Дата: ${date}\n` +
+                    `⏰ Время: ${hh}:${mm}\n` +
+                    `Жду! ✨`;
+                    
+        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+
+</body>
+</html>

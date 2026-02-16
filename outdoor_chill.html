@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chill & Food 🥤</title>
+    <style>
+        :root {
+            --accent: #f08080;
+            --text: #6d597a;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fec5bb 0%, #fcd5ce 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0; display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; color: var(--text);
+        }
+
+        .container {
+            background: white; padding: 2rem; border-radius: 35px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            text-align: center; max-width: 400px; width: 88%; margin: 20px;
+        }
+
+        .step { display: none; animation: fadeIn 0.3s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { color: var(--accent); font-size: 1.4rem; margin-bottom: 1.2rem; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card {
+            background: #fff; border: 2px solid #fec5bb;
+            padding: 18px 5px; border-radius: 20px; cursor: pointer; transition: 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .card:hover { border-color: var(--accent); background: #fff8f7; }
+        .card span { display: block; margin-top: 5px; font-weight: bold; font-size: 0.8rem; }
+
+        .scroll-list { max-height: 45vh; overflow-y: auto; padding-right: 5px; margin: 15px 0; }
+        .place-item {
+            background: #fffafa; border: 1px solid #ffe5d9;
+            border-radius: 18px; padding: 12px; margin-bottom: 10px; text-align: left;
+        }
+        .place-name { font-weight: bold; font-size: 0.95rem; display: block; color: #b56576; }
+        .map-link { color: var(--accent); font-size: 0.8rem; text-decoration: none; border-bottom: 1px dashed; }
+
+        .btn-main {
+            background: var(--accent); color: white; border: none;
+            padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer;
+        }
+        
+        .back-btn { background: none; border: none; color: #adb5bd; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem; }
+
+        /* Picker */
+        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; font-family: inherit; }
+        .picker-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 140px; background: #fafafa; border-radius: 20px;
+            position: relative; margin-bottom: 15px; overflow: hidden;
+        }
+        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column::-webkit-scrollbar { display: none; }
+        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ddd; }
+        .picker-item.selected { color: var(--accent); font-weight: bold; font-size: 1.4rem; }
+        .highlight { position: absolute; top: 45px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="step-main" class="step active">
+        <h1>Chill & Food 🥤</h1>
+        <div class="grid">
+            <div class="card" onclick="goToStep('step-resto-types')">🍕<span>Restaurant</span></div>
+            <div class="card" onclick="openCat('shopping')">🛍️<span>Shopping</span></div>
+            <div class="card" onclick="openCat('church')">⛪<span>Church</span></div>
+            <div class="card" onclick="openCat('walk')">🚶<span>Walk</span></div>
+        </div>
+        <button class="back-btn" onclick="location.href='outdoor_menu.html'">← Назад</button>
+    </div>
+
+    <div id="step-resto-types" class="step">
+        <h1>Что попробуем? 🍽️</h1>
+        <div class="grid">
+            <div class="card" onclick="openCat('cafe_interesting')">🌟<span>Интересное</span></div>
+            <div class="card" onclick="openCat('american')">🇺🇸<span>American</span></div>
+            <div class="card" onclick="openCat('chinese')">🇨🇳<span>Chinese</span></div>
+            <div class="card" onclick="openCat('korean')">🇰🇷<span>Korean</span></div>
+            <div class="card" onclick="openCat('mongolian')">🇲🇳<span>Mongolian</span></div>
+            <div class="card" onclick="openCat('japan')">🇯🇵<span>Japan</span></div>
+            <div class="card" onclick="openCat('indian')">🇮🇳<span>Indian</span></div>
+        </div>
+        <button class="back-btn" onclick="goToStep('step-main')">← Назад к меню</button>
+    </div>
+
+    <div id="step-places" class="step">
+        <h1 id="cat-title">Выбери место</h1>
+        <div id="places-list" class="scroll-list"></div>
+        <button id="dynamic-back" class="back-btn">← Назад</button>
+    </div>
+
+    <div id="step-final" class="step">
+        <h1 id="selected-place">Когда?</h1>
+        <input type="date" id="date-picker" value="2026-01-01">
+        <div class="picker-container">
+            <div class="highlight"></div>
+            <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
+            <div style="font-weight: bold;">:</div>
+            <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
+        </div>
+        <button class="btn-main" onclick="sendToTG()">Запланировать ✨</button>
+        <button class="back-btn" onclick="goToStep('step-places')">← Сменить место</button>
+    </div>
+</div>
+
+<script>
+    const chillData = {
+        cafe_interesting: [
+            { name: "Cotton Cat Cafe (Котокафе) 🐈", map: "https://maps.app.goo.gl/fifq4gEBei7gm5ro6" },
+            { name: "B Caffe Bar (Холсты) 🎨", map: "https://maps.app.goo.gl/ezYVwtqwf1fvkwoQA" },
+            { name: "Littleheaven in UB (Тихо) ☁️", map: "https://maps.app.goo.gl/ibVD9pFtJ4iL7VPY6" },
+            { name: "Toilet Cafe Mongolia 🚽", map: "https://maps.app.goo.gl/dwUKcRVaJ4qo8i9C7" }
+        ],
+        american: [
+            { name: "Fromagerie MACU", map: "https://maps.app.goo.gl/7YoQ4cLFPTS91Qyc7?g_st=ic" },
+            { name: "Cafe Papa", map: "https://maps.app.goo.gl/LXy6jNA3TuU52CSA7" }
+        ],
+        chinese: [
+            { name: "Лянь Хө Хятад ресторан", map: "https://maps.app.goo.gl/TkMtzgc5fEcQwWcm6?g_st=ic" },
+            { name: "Zhang Liang Malatang", map: "https://maps.app.goo.gl/5hyRYCZ5PS6H3e6b9" }
+        ],
+        korean: [
+            { name: "Koraebul Restaurant", map: "https://maps.app.goo.gl/H46xBXoFSDnQsbPJ6?g_st=ic" },
+            { name: "Cup Chicken", map: "https://maps.app.goo.gl/Q9cJekgzb6DgruZ17" },
+            { name: "소망 삼겹살 가든", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr5" }
+        ],
+        mongolian: [
+            { name: "Shim Shid Mongolian Rest", map: "https://maps.app.goo.gl/7TKuDHELQXSBm8dA6" },
+            { name: "Paris", map: "https://maps.app.goo.gl/emeKMccrwHDLTTAb8" }
+        ],
+        japan: [
+            { name: "Arig Anya", map: "https://maps.app.goo.gl/4GLGj9XnmwuV5WFYA?g_st=ic" },
+            { name: "Pepper Lunch Mongolia", map: "https://maps.app.goo.gl/DZ2ubXvSMbom8xrf7" }
+        ],
+        indian: [
+            { name: "Namaste", map: "https://maps.app.goo.gl/Mdh7ahzNnzNsR3Tb8" },
+            { name: "Khajuraho - Indian Restaurant", map: "https://maps.app.goo.gl/fcwhoDqyCdFnRxa29" }
+        ],
+        shopping: [
+            { name: "Shangri-La Mall", map: "http://google.com/maps?q=Shangri-La+Mall" },
+            { name: "State Department Store", map: "http://google.com/maps?q=State+Department+Store" },
+            { name: "Emart", map: "http://google.com/maps?q=Emart+UB" }
+        ],
+        church: [
+            { name: "Храм Гандантэгченлин", map: "http://google.com/maps?q=Gandantegchinlen+Monastery" },
+            { name: "Католическая церковь", map: "http://google.com/maps?q=Cathedral+of+Saints+Peter+and+Paul" }
+        ],
+        walk: [
+            { name: "Центральная площадь", map: "http://google.com/maps?q=Sukhbaatar+Square" },
+            { name: "Вечерний проспект (Peace Ave)", map: "http://google.com/maps?q=Peace+Avenue+UB" }
+        ]
+    };
+
+    function goToStep(id) {
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openCat(key) {
+        const back = document.getElementById('dynamic-back');
+        const restoSubCats = ['cafe_interesting','american','chinese','korean','mongolian','japan','indian'];
+        
+        // Если это кухня или интересное кафе - возвращаемся в меню кухонь
+        if (restoSubCats.includes(key)) {
+            back.onclick = () => goToStep('step-resto-types');
+        } else {
+            back.onclick = () => goToStep('step-main');
+        }
+
+        document.getElementById('cat-title').innerText = key.replace('_', ' ').toUpperCase();
+        const list = document.getElementById('places-list');
+        list.innerHTML = '';
+        
+        chillData[key].forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'place-item';
+            div.innerHTML = `
+                <span class="place-name">${p.name}</span>
+                <a href="${p.map}" target="_blank" class="map-link">На карте 📍</a>
+                <button class="btn-main" style="margin-top:10px; padding:8px;" onclick="confirm('${p.name}')">Выбрать</button>
+            `;
+            list.appendChild(div);
+        });
+        goToStep('step-places');
+    }
+
+    function confirm(name) {
+        document.getElementById('selected-place').innerText = name;
+        initPickers();
+        goToStep('step-final');
+    }
+
+    function initPickers() {
+        const h = document.getElementById('hours-col');
+        const m = document.getElementById('minutes-col');
+        if(h.innerHTML) return;
+        let hC = '<div class="picker-item"></div>';
+        for(let i=0; i<24; i++) hC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        h.innerHTML = hC + '<div class="picker-item"></div>';
+        let mC = '<div class="picker-item"></div>';
+        for(let i=0; i<60; i+=5) mC += `<div class="picker-item">${String(i).padStart(2,'0')}</div>`;
+        m.innerHTML = mC + '<div class="picker-item"></div>';
+        setTimeout(() => { updatePick('hours'); updatePick('minutes'); }, 50);
+    }
+
+    function updatePick(type) {
+        const col = document.getElementById(type + '-col');
+        const items = col.querySelectorAll('.picker-item');
+        const idx = Math.round(col.scrollTop / 45) + 1;
+        items.forEach(i => i.classList.remove('selected'));
+        if(items[idx]) items[idx].classList.add('selected');
+    }
+
+    function sendToTG() {
+        const name = document.getElementById('selected-place').innerText;
+        const d = document.getElementById('date-picker').value;
+        const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
+        const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
+        const msg = `Гастро-план! 🍽️\nЛокация: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}`;
+        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>

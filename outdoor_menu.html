@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Планы вне дома 🌳</title>
+    <style>
+        :root {
+            --bg: #f8f9fa;
+            --accent: #ff4d6d;
+            --text: #2d3436;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe3e3 100%);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem 1.5rem;
+            border-radius: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 85%;
+        }
+
+        h1 { color: var(--text); font-size: 1.5rem; margin-bottom: 2rem; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .menu-item {
+            background: white;
+            border: 2px solid #fff0f3;
+            padding: 25px 10px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            background: #fff0f3;
+        }
+
+        .icon { font-size: 2.2rem; }
+        .label { font-weight: bold; font-size: 0.9rem; letter-spacing: 0.5px; }
+
+        .back-link {
+            margin-top: 30px;
+            display: inline-block;
+            color: #adb5bd;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Куда отправимся? 🌳</h1>
+    
+    <div class="grid">
+        <a href="outdoor_culture.html" class="menu-item">
+            <span class="icon">🏛️</span>
+            <span class="label">CULTURE</span>
+        </a>
+        
+        <a href="outdoor_ent.html" class="menu-item">
+            <span class="icon">🎮</span>
+            <span class="label">ENTERTAIN</span>
+        </a>
+        
+        <a href="outdoor_active.html" class="menu-item">
+            <span class="icon">🧗</span>
+            <span class="label">ACTIVE</span>
+        </a>
+        
+        <a href="outdoor_chill.html" class="menu-item">
+            <span class="icon">🥤</span>
+            <span class="label">CHILL</span>
+        </a>
+    </div>
+
+    <a href="index.html" class="back-link">← Назад на главную</a>
+</div>
+
+</body>
+</html>

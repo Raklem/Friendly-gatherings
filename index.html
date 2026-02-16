@@ -3,106 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Планы на вечер ✨</title>
+    <title>Планы на сегодня ✨</title>
     <style>
         :root {
             --pink-light: #fff0f3;
             --pink-medium: #ffccd5;
             --pink-dark: #ff4d6d;
             --text-main: #594145;
+            --home-color: #70d6ff;
+            --outdoor-color: #ff4d6d;
         }
 
         body {
             background: linear-gradient(135deg, var(--pink-light) 0%, var(--pink-medium) 100%);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: var(--text-main);
         }
 
         .container {
             background: white;
-            padding: 2rem;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(255, 77, 109, 0.15);
+            padding: 2.5rem 1.5rem;
+            border-radius: 35px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 400px;
             width: 85%;
         }
 
-        h1 { color: var(--pink-dark); font-size: 1.5rem; margin-bottom: 0.5rem; }
-        p { font-size: 0.9rem; margin-bottom: 2rem; opacity: 0.8; }
+        h1 { color: var(--text-main); font-size: 1.6rem; margin-bottom: 2rem; }
 
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        .main-choice {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .menu-card {
-            background: white;
-            border: 2px solid var(--pink-light);
-            padding: 20px 10px;
-            border-radius: 20px;
+        .choice-card {
+            padding: 30px 20px;
+            border-radius: 25px;
             text-decoration: none;
-            color: var(--text-main);
-            font-weight: 600;
-            transition: 0.3s;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .menu-card:hover {
-            border-color: var(--pink-dark);
-            transform: translateY(-5px);
-            background: var(--pink-light);
-        }
+        .home { background: var(--home-color); box-shadow: 0 10px 20px rgba(112, 214, 255, 0.3); }
+        .outdoor { background: var(--outdoor-color); box-shadow: 0 10px 20px rgba(255, 77, 109, 0.3); }
 
-        .icon { font-size: 2rem; }
+        .choice-card:hover { transform: translateY(-8px); filter: brightness(1.1); }
+        
+        .choice-card span { font-size: 0.9rem; font-weight: normal; opacity: 0.9; }
 
-        .footer-photo {
+        .footer-img {
             margin-top: 30px;
-            width: 80px;
-            height: 80px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             border: 3px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Куда отправимся? 🗺️</h1>
-    <p>Выбери категорию, а дальше решим!</p>
+    <h1>Где проведём время? 🏠🌳</h1>
+    
+    <div class="main-choice">
+        <a href="home.html" class="choice-card home">
+            <div>🏠 Home</div>
+            <span>Уютно, спокойно, по-домашнему</span>
+        </a>
 
-    <div class="menu-grid">
-        <a href="restaurant.html" class="menu-card">
-            <span class="icon">🍽️</span>
-            <span>Рестораны</span>
-        </a>
-        <a href="movie.html" class="menu-card">
-            <span class="icon">🍿</span>
-            <span>Кино</span>
-        </a>
-        <a href="museum.html" class="menu-card">
-            <span class="icon">🖼️</span>
-            <span>Музеи</span>
-        </a>
-        <a href="concert.html" class="menu-card">
-            <span class="icon">🎸</span>
-            <span>Концерты</span>
+        <a href="outdoor_menu.html" class="choice-card outdoor">
+            <div>🌳 Outdoor</div>
+            <span>Приключения, еда и прогулки</span>
         </a>
     </div>
 
-    <img src="me.jpg" alt="Me" class="footer-photo">
+    <img src="me.jpg" alt="Me" class="footer-img">
 </div>
 
 </body>
