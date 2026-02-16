@@ -96,17 +96,27 @@
         <button class="back-btn" onclick="goToStep('step-cats')">← Назад</button>
     </div>
 
-    <div id="step-final" class="step">
-        <h1 id="selected-place">Когда?</h1>
-        <input type="date" id="date-picker" value="2026-01-01">
+<div id="step-final" class="step">
+        <h1 id="selected-place">Когда и куда?</h1>
+        <input type="date" id="date-picker" value="2026-02-16">
+        
         <div class="picker-container">
             <div class="highlight"></div>
             <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
             <div style="font-weight: bold;">:</div>
             <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
         </div>
-        <button class="btn-main" onclick="sendToTG()">Запланировать приключение 🏕️</button>
-        <button class="back-btn" onclick="goToStep('step-places')">← Назад</button>
+
+        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Пригласить через:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <button class="btn-main" style="background: #0088cc;" onclick="share('tg')">Telegram</button>
+            <button class="btn-main" style="background: #25D366;" onclick="share('wa')">WhatsApp</button>
+            <button class="btn-main" style="background: #e1306c;" onclick="share('inst')">Instagram</button>
+            <button class="btn-main" style="background: #0084ff;" onclick="share('msgr')">Messenger</button>
+        </div>
+        
+        <button class="back-btn" onclick="goToStep('step-places')">← Изменить место</button>
     </div>
 </div>
 
@@ -189,12 +199,54 @@
         if(items[idx]) items[idx].classList.add('selected');
     }
 
-    function sendToTG() {
+function share(platform) {
+        const name = document.getElementById('selected-place').innerText;
         const d = document.getElementById('date-picker').value;
         const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
         const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
-        const msg = `Активный отдых! 🧗\nМесто: ${choice.place}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\nБерем удобную обувь! 👟`;
-        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+        
+        // Формируем красивый текст
+        const text = `План найден! 🥂\n\n📍 Место: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\n\nПойдём? ✨`;
+        const encodedText = encodeURIComponent(text);
+
+        let url = '';
+
+        switch(platform) {
+            case 'tg':
+                url = `https://t.me/share/url?url=&text=${encodedText}`;
+                break;
+            case 'wa':
+                url = `https://api.whatsapp.com/send?text=${encodedText}`;
+                break;
+            case 'inst':
+                // Instagram не поддерживает прямую передачу текста в Direct через ссылку.
+                // Поэтому мы копируем текст в буфер обмена и открываем приложение.
+                copyToClipboard(text);
+                alert("Текст скопирован! Теперь выбери чат в Instagram и вставь его.");
+                url = `instagram://sharesheet`; // Попытка открыть Share Sheet
+                if (!window.location.href.includes('instagram')) {
+                    url = "https://www.instagram.com/direct/inbox/";
+                }
+                break;
+            case 'msgr':
+                url = `fb-messenger://share?link=&app_id=&text=${encodedText}`;
+                // Запасной вариант для десктопа
+                setTimeout(() => {
+                    if (!document.hidden) window.location.href = "https://www.facebook.com/messages/";
+                }, 500);
+                break;
+        }
+
+        window.open(url, '_blank');
+    }
+
+    function copyToClipboard(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
     }
 </script>
 
