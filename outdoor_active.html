@@ -6,44 +6,37 @@
     <title>Active Life 🧗</title>
     <style>
         :root {
-            --act-bg: #f1f8e9;
-            --act-accent: #689f38; /* Зеленый лес */
-            --act-blue: #0288d1; /* Горное небо */
+            --act-accent: #689f38;
+            --act-blue: #0288d1;
             --text: #1b5e20;
         }
 
         body {
             background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
             font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            display: flex; justify-content: center; align-items: center;
+            margin: 0; display: flex; justify-content: center; align-items: center;
             min-height: 100vh; color: var(--text);
         }
 
         .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 35px;
+            background: white; padding: 2rem; border-radius: 35px;
             box-shadow: 0 15px 35px rgba(104, 159, 56, 0.15);
-            text-align: center;
-            max-width: 400px;
-            width: 88%;
-            margin: 20px;
+            text-align: center; max-width: 400px; width: 88%; margin: 20px;
         }
 
-        .step { display: none; animation: slideUp 0.4s ease-out; }
+        .step { display: none; animation: slideUp 0.3s ease-out; }
         .active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         h1 { color: var(--act-accent); font-size: 1.4rem; margin-bottom: 1.2rem; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .cat-card {
+        .card {
             background: #fff; border: 2px solid #f1f8e9;
             padding: 20px 5px; border-radius: 22px; cursor: pointer; transition: 0.2s;
         }
-        .cat-card:hover { border-color: var(--act-accent); background: #f9fbe7; }
-        .cat-card span { display: block; margin-top: 8px; font-weight: bold; font-size: 0.85rem; }
+        .card:hover { border-color: var(--act-accent); background: #f9fbe7; }
+        .card span { display: block; margin-top: 8px; font-weight: bold; font-size: 0.85rem; }
 
         .scroll-list { max-height: 45vh; overflow-y: auto; padding-right: 5px; margin: 15px 0; }
         .place-item {
@@ -56,22 +49,32 @@
         .btn-main {
             background: var(--act-accent); color: white; border: none;
             padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(104, 159, 56, 0.2);
         }
         
         .back-btn { background: none; border: none; color: #9e9e9e; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem; }
 
-        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; font-family: inherit; }
+        /* ИСПРАВЛЕННЫЕ РОВНЫЕ ЧАСЫ */
+        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 15px; font-family: inherit; }
+        
         .picker-container {
             display: flex; justify-content: center; align-items: center;
-            height: 140px; background: #fafafa; border-radius: 20px;
-            position: relative; margin-bottom: 15px; overflow: hidden;
+            height: 150px; background: #f9fdf9; border-radius: 20px;
+            position: relative; margin-bottom: 20px; overflow: hidden; padding: 0 10px;
         }
-        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column {
+            flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;
+            scrollbar-width: none; display: flex; flex-direction: column; align-items: center;
+        }
         .picker-column::-webkit-scrollbar { display: none; }
-        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ddd; }
+        .picker-item {
+            height: 50px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+            scroll-snap-align: center; color: #ccc; width: 100%; font-size: 1.1rem; line-height: 50px;
+        }
         .picker-item.selected { color: var(--act-accent); font-weight: bold; font-size: 1.4rem; }
-        .highlight { position: absolute; top: 45px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+        .highlight {
+            position: absolute; top: 50px; left: 10px; right: 10px; height: 50px;
+            border-top: 1px solid #e0ede0; border-bottom: 1px solid #e0ede0; pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -80,12 +83,12 @@
     <div id="step-cats" class="step active">
         <h1>Active Life 🧗</h1>
         <div class="grid">
-            <div class="cat-card" onclick="openCat('hiking')">🥾<span>Hiking</span></div>
-            <div class="cat-card" onclick="openCat('horse')">🐎<span>Horse</span></div>
-            <div class="cat-card" onclick="openCat('camel')">🐫<span>Camel</span></div>
-            <div class="cat-card" onclick="openCat('ski')">⛷️<span>Ski</span></div>
-            <div class="cat-card" onclick="openCat('trip')">🚐<span>Trip</span></div>
-            <div class="cat-card" onclick="openCat('parks')">🌲<span>Parks</span></div>
+            <div class="card" onclick="openCat('hiking')">🥾<span>Hiking</span></div>
+            <div class="card" onclick="openCat('horse')">🐎<span>Horse</span></div>
+            <div class="card" onclick="openCat('camel')">🐫<span>Camel</span></div>
+            <div class="card" onclick="openCat('ski')">⛷️<span>Ski</span></div>
+            <div class="card" onclick="openCat('trip')">🚐<span>Trip</span></div>
+            <div class="card" onclick="openCat('parks')">🌲<span>Parks</span></div>
         </div>
         <button class="back-btn" onclick="location.href='outdoor_menu.html'">← Назад</button>
     </div>
@@ -96,27 +99,26 @@
         <button class="back-btn" onclick="goToStep('step-cats')">← Назад</button>
     </div>
 
-<div id="step-final" class="step">
-        <h1 id="selected-place">Когда и куда?</h1>
+    <div id="step-final" class="step">
+        <h1 id="selected-place">Название</h1>
         <input type="date" id="date-picker" value="2026-02-16">
         
         <div class="picker-container">
             <div class="highlight"></div>
             <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
-            <div style="font-weight: bold;">:</div>
+            <div style="font-weight: bold; line-height: 50px; color: var(--act-accent);">:</div>
             <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
         </div>
 
-        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Пригласить через:</p>
-        
+        <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Отправить приглашение:</p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-            <button class="btn-main" style="background: #0088cc;" onclick="share('tg')">Telegram</button>
-            <button class="btn-main" style="background: #25D366;" onclick="share('wa')">WhatsApp</button>
-            <button class="btn-main" style="background: #e1306c;" onclick="share('inst')">Instagram</button>
-            <button class="btn-main" style="background: #0084ff;" onclick="share('msgr')">Messenger</button>
+            <button class="btn-main" style="background: #0088cc; padding: 12px 5px;" onclick="share('tg')">Telegram</button>
+            <button class="btn-main" style="background: #25D366; padding: 12px 5px;" onclick="share('wa')">WhatsApp</button>
+            <button class="btn-main" style="background: #e1306c; padding: 12px 5px;" onclick="share('inst')">Instagram</button>
+            <button class="btn-main" style="background: #0084ff; padding: 12px 5px;" onclick="share('msgr')">Messenger</button>
         </div>
-        
-        <button class="back-btn" onclick="goToStep('step-places')">← Изменить место</button>
+
+        <button class="back-btn" onclick="goToStep('step-places')">← Сменить место</button>
     </div>
 </div>
 
@@ -142,12 +144,10 @@
             { name: "Manzushir Monastery", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr51" }
         ],
         parks: [
-            { name: "National Park (Үндэсний цэцэрлэгт хүрээлэн)", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr52" },
+            { name: "National Park (Үндэсний цэцэрлэгт)", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr52" },
             { name: "Buddha Park", map: "https://maps.app.goo.gl/ekaWP5etzYLgJoNr53" }
         ]
     };
-
-    let choice = { place: '' };
 
     function goToStep(id) {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -164,7 +164,7 @@
             div.innerHTML = `
                 <span class="place-name">${p.name}</span>
                 <a href="${p.map}" target="_blank" class="map-link">На карте 📍</a>
-                <button class="btn-main" style="margin-top:8px; padding:6px; font-size:0.8rem;" onclick="confirm('${p.name}')">Выбрать</button>
+                <button class="btn-main" style="margin-top:10px; padding:8px; font-size:0.8rem;" onclick="confirm('${p.name}')">Выбрать</button>
             `;
             list.appendChild(div);
         });
@@ -172,7 +172,6 @@
     }
 
     function confirm(name) {
-        choice.place = name;
         document.getElementById('selected-place').innerText = name;
         initPickers();
         goToStep('step-final');
@@ -194,50 +193,32 @@
     function updatePick(type) {
         const col = document.getElementById(type + '-col');
         const items = col.querySelectorAll('.picker-item');
-        const idx = Math.round(col.scrollTop / 45) + 1;
+        const idx = Math.round(col.scrollTop / 50) + 1;
         items.forEach(i => i.classList.remove('selected'));
         if(items[idx]) items[idx].classList.add('selected');
     }
 
-function share(platform) {
+    function share(platform) {
         const name = document.getElementById('selected-place').innerText;
         const d = document.getElementById('date-picker').value;
         const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
         const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
         
-        // Формируем красивый текст
-        const text = `План найден! 🥂\n\n📍 Место: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\n\nПойдём? ✨`;
+        const text = `Активный план! 🧗\n\n📍 Место: ${name}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\n\nБерем удобную обувь и вперед! 🔥`;
         const encodedText = encodeURIComponent(text);
 
         let url = '';
-
         switch(platform) {
-            case 'tg':
-                url = `https://t.me/share/url?url=&text=${encodedText}`;
-                break;
-            case 'wa':
-                url = `https://api.whatsapp.com/send?text=${encodedText}`;
-                break;
+            case 'tg': url = `https://t.me/share/url?url=&text=${encodedText}`; break;
+            case 'wa': url = `https://api.whatsapp.com/send?text=${encodedText}`; break;
             case 'inst':
-                // Instagram не поддерживает прямую передачу текста в Direct через ссылку.
-                // Поэтому мы копируем текст в буфер обмена и открываем приложение.
                 copyToClipboard(text);
-                alert("Текст скопирован! Теперь выбери чат в Instagram и вставь его.");
-                url = `instagram://sharesheet`; // Попытка открыть Share Sheet
-                if (!window.location.href.includes('instagram')) {
-                    url = "https://www.instagram.com/direct/inbox/";
-                }
+                alert("Текст скопирован! Выбери чат в Direct и вставь сообщение.");
+                url = "https://www.instagram.com/direct/inbox/";
                 break;
-            case 'msgr':
-                url = `fb-messenger://share?link=&app_id=&text=${encodedText}`;
-                // Запасной вариант для десктопа
-                setTimeout(() => {
-                    if (!document.hidden) window.location.href = "https://www.facebook.com/messages/";
-                }, 500);
-                break;
+            case 'msgr': url = `fb-messenger://share?link=${encodeURIComponent(window.location.href)}&app_id=123&text=${encodedText}`; break;
         }
-
-        window.open(url, '_blank');
+        if(url) window.open(url, '_blank');
     }
 
     function copyToClipboard(text) {

@@ -37,7 +37,6 @@
 
         h1 { color: var(--ent-accent); font-size: 1.4rem; margin-bottom: 1.2rem; }
 
-        /* Сетка 8 категорий */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .cat-card {
             background: #fff; border: 2px solid #f3e5f5;
@@ -46,7 +45,6 @@
         .cat-card:hover { border-color: var(--ent-accent); background: #fdf0ff; }
         .cat-card span { display: block; margin-top: 5px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
 
-        /* Список мест */
         .scroll-list { max-height: 45vh; overflow-y: auto; padding-right: 5px; margin: 15px 0; }
         .place-item {
             background: #faf5ff; border: 1px solid #f3e5f5;
@@ -63,18 +61,34 @@
         
         .back-btn { background: none; border: none; color: #adb5bd; margin-top: 15px; cursor: pointer; text-decoration: underline; font-size: 0.85rem; }
 
-        /* Picker */
-        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 10px; font-family: inherit; }
+        /* ИСПРАВЛЕННЫЕ РОВНЫЕ ЧАСЫ */
+        input[type="date"] { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 15px; font-family: inherit; }
+        
         .picker-container {
             display: flex; justify-content: center; align-items: center;
-            height: 140px; background: #fafafa; border-radius: 20px;
-            position: relative; margin-bottom: 15px; overflow: hidden;
+            height: 150px; background: #fafafa; border-radius: 20px;
+            position: relative; margin-bottom: 20px; overflow: hidden; padding: 0 10px;
         }
-        .picker-column { flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .picker-column {
+            flex: 1; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;
+            scrollbar-width: none; display: flex; flex-direction: column; align-items: center;
+        }
         .picker-column::-webkit-scrollbar { display: none; }
-        .picker-item { height: 50px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #ddd; }
+        
+        .picker-item {
+            height: 50px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+            scroll-snap-align: center; color: #ddd; width: 100%; font-size: 1.1rem; line-height: 50px;
+        }
         .picker-item.selected { color: var(--ent-accent); font-weight: bold; font-size: 1.4rem; }
-        .highlight { position: absolute; top: 45px; left: 10px; right: 10px; height: 50px; border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none; }
+        
+        .highlight {
+            position: absolute; top: 50px; left: 10px; right: 10px; height: 50px;
+            border-top: 1px solid #eee; border-bottom: 1px solid #eee; pointer-events: none;
+        }
+
+        /* Кнопки соцсетей */
+        .share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .btn-share { padding: 12px; border-radius: 15px; border: none; color: white; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -102,15 +116,25 @@
     </div>
 
     <div id="step-final" class="step">
-        <h1 id="selected-place">Когда?</h1>
-        <input type="date" id="date-picker" value="2026-01-01">
+        <h1 id="selected-place" style="margin-bottom: 5px;">Когда?</h1>
+        <p style="font-size: 0.8rem; color: #888; margin-top: 0;">Выбери время и позови друзей</p>
+        
+        <input type="date" id="date-picker" value="2026-02-16">
+        
         <div class="picker-container">
             <div class="highlight"></div>
             <div class="picker-column" id="hours-col" onscroll="updatePick('hours')"></div>
-            <div style="font-weight: bold;">:</div>
+            <div style="font-weight: bold; line-height: 50px;">:</div>
             <div class="picker-column" id="minutes-col" onscroll="updatePick('minutes')"></div>
         </div>
-        <button class="btn-main" onclick="sendToTG()">Погнали! 🚀</button>
+
+        <div class="share-grid">
+            <button class="btn-share" style="background: #0088cc;" onclick="share('tg')">Telegram</button>
+            <button class="btn-share" style="background: #25D366;" onclick="share('wa')">WhatsApp</button>
+            <button class="btn-share" style="background: #e1306c;" onclick="share('inst')">Instagram</button>
+            <button class="btn-share" style="background: #0084ff;" onclick="share('msgr')">Messenger</button>
+        </div>
+        
         <button class="back-btn" onclick="goToStep('step-places')">← Назад</button>
     </div>
 </div>
@@ -197,19 +221,41 @@
     function updatePick(type) {
         const col = document.getElementById(type + '-col');
         const items = col.querySelectorAll('.picker-item');
-        const idx = Math.round(col.scrollTop / 45) + 1; // 45px height adjust
+        const idx = Math.round(col.scrollTop / 50) + 1;
         items.forEach(i => i.classList.remove('selected'));
         if(items[idx]) items[idx].classList.add('selected');
     }
 
-    function sendToTG() {
+    function share(platform) {
         const d = document.getElementById('date-picker').value;
         const hh = document.getElementById('hours-col').querySelector('.selected').innerText;
         const mm = document.getElementById('minutes-col').querySelector('.selected').innerText;
-        const msg = `Развлекательный план! 🎮\nЧто: ${choice.place}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\nБудет весело! 🔥`;
-        window.open(`https://t.me/Raklem?text=${encodeURIComponent(msg)}`, '_blank');
+        
+        const text = `Развлекательный план! 🎮\n\n📍 Место: ${choice.place}\n📅 Дата: ${d}\n⏰ Время: ${hh}:${mm}\n\nБудет весело! 🔥`;
+        const encodedText = encodeURIComponent(text);
+
+        let url = '';
+        switch(platform) {
+            case 'tg': url = `https://t.me/share/url?url=&text=${encodedText}`; break;
+            case 'wa': url = `https://api.whatsapp.com/send?text=${encodedText}`; break;
+            case 'inst':
+                copyToClipboard(text);
+                alert("Текст скопирован! Теперь выбери чат в Direct и вставь сообщение.");
+                url = "https://www.instagram.com/direct/inbox/";
+                break;
+            case 'msgr': url = `fb-messenger://share?link=${encodeURIComponent(window.location.href)}&app_id=123&text=${encodedText}`; break;
+        }
+        if(url) window.open(url, '_blank');
+    }
+
+    function copyToClipboard(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
     }
 </script>
-
 </body>
 </html>
